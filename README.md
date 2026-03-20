@@ -1,4 +1,4 @@
-# FraudFighter AI Standards Kit
+# Claude Code AI Standards Kit
 > Production-ready Claude Code scaffold for FraudFighter services.
 > Based on the everything-claude-code architecture (affaan-m/everything-claude-code).
 
