@@ -1,0 +1,37 @@
+{
+  "hooks": [
+    {
+      "id": "ff-no-console-log",
+      "description": "Warn when console.log is used in backend files — must use structured logger",
+      "event": "PostToolUse",
+      "matcher": "tool_name in ['Write', 'Edit'] and file_path matches '\\.(ts|tsx|js|jsx|java|py)$'",
+      "command": "node scripts/hooks/check-console-log.js"
+    },
+    {
+      "id": "ff-no-hardcoded-secrets",
+      "description": "Block writes that contain hardcoded secrets or credentials",
+      "event": "PreToolUse",
+      "matcher": "tool_name in ['Write', 'Edit']",
+      "command": "node scripts/hooks/check-secrets.js"
+    },
+    {
+      "id": "ff-no-missing-tenant-id",
+      "description": "Warn when a new DB query file is written without tenant_id filter",
+      "event": "PostToolUse",
+      "matcher": "tool_name in ['Write', 'Edit'] and file_path matches 'repositor'",
+      "command": "node scripts/hooks/check-tenant-id.js"
+    },
+    {
+      "id": "ff-session-start",
+      "description": "Load FF session context on start",
+      "event": "SessionStart",
+      "command": "node scripts/hooks/session-start.js"
+    },
+    {
+      "id": "ff-session-end",
+      "description": "Save session summary and learned patterns on end",
+      "event": "Stop",
+      "command": "node scripts/hooks/session-end.js"
+    }
+  ]
+}

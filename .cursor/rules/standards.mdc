@@ -1,0 +1,149 @@
+---
+description: Enterprise Application Standards — applies to all files in this project
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Enterprise Application Standards v1.0
+> These rules are MANDATORY. Apply them to every file you generate or modify.
+
+## DATABASE RULES
+
+### Naming (DB-01)
+- [MUST] snake_case for ALL table and column names
+- [MUST] Tables are plural nouns: `users`, `orders`, `line_items`
+- [MUST] Primary keys named `id` (UUID v4 or BIGSERIAL)
+- [MUST] Foreign keys: `<referenced_table>_id`
+- [SHOULD] Booleans prefixed: `is_`, `has_`, `can_`, `should_`
+- [SHOULD] Timestamps: `created_at`, `updated_at`, `deleted_at`
+- [AVOID] Abbreviations: no `usr`, `acct`, `txn`
+- [AVOID] SQL reserved words as column names
+
+### Schema (DB-02)
+- [MUST] Every table has `created_at`, `updated_at` (auto-managed)
+- [MUST] Soft deletes use `deleted_at` nullable timestamp — NOT `is_deleted`
+- [MUST] No business logic in database triggers
+- [AVOID] JSON blobs as primary data in relational tables
+
+### Migrations (DB-04)
+- [MUST] All schema changes via versioned migration files
+- [MUST] Migrations are backward compatible (expand-contract)
+- [MUST] Never rename/drop a column in a single deployment
+- [AVOID] Bundling data migrations with schema migrations
+
+---
+
+## API RULES
+
+### Endpoints (API-01)
+- [MUST] Plural nouns: `/users`, `/orders`, `/products`
+- [MUST] Correct HTTP verbs: GET/POST/PUT/PATCH/DELETE
+- [MUST] NO verbs in paths — `/getUser` is forbidden
+- [SHOULD] Max 2 levels of nesting: `/users/{id}/orders`
+
+### Responses (API-02)
+- [MUST] Envelope: `{ "data": ..., "meta": {...}, "errors": [] }`
+- [MUST] Timestamps in ISO 8601 UTC: `2024-01-15T10:30:00Z`
+- [MUST] Empty arrays `[]` — never `null` for arrays
+- [MUST] Versioned URL prefix: `/v1/`, `/v2/`
+- [AVOID] Different response shapes for the same resource
+
+### Errors (API-04)
+- [MUST] Error body: `{ "code": "...", "message": "...", "details": [...], "request_id": "..." }`
+- [MUST] NEVER return HTTP 200 with error content in body
+- [AVOID] Exposing internal stack traces in API responses
+
+### Security (API-03)
+- [MUST] All endpoints require auth unless explicitly marked public
+- [MUST] JWT: 15min access token, 7d refresh token
+- [MUST] Rate limiting on all endpoints
+- [MUST] NEVER log request bodies containing PII or credentials
+- [AVOID] Auth tokens in URL query parameters
+
+---
+
+## FRONTEND / UI RULES
+
+### Components (UI-01)
+- [MUST] Single-responsibility — one concern per component
+- [MUST] No business logic in UI components — use hooks/services
+- [MUST] TypeScript types for ALL props (no `any`)
+- [SHOULD] Atomic design: atoms → molecules → organisms → pages
+- [AVOID] Inline styles — use design tokens and utility classes
+
+### Design System (UI-02)
+- [MUST] Approved design system components for standard UI elements
+- [MUST] Colors/typography/spacing via design tokens only
+- [MUST] Dark mode support for all new components
+- [AVOID] Third-party UI libraries outside the approved list
+
+### Accessibility (UI-03)
+- [MUST] WCAG 2.1 AA compliance minimum
+- [MUST] All interactive elements keyboard navigable
+- [MUST] All images have descriptive alt text
+
+### State (UI-04)
+- [MUST] Server state via React Query or SWR — NOT Redux
+- [AVOID] Prop drilling more than 2 levels deep
+
+---
+
+## BACKEND RULES
+
+### Service Layer (BE-01)
+- [MUST] Business logic in service layer — not controllers or models
+- [MUST] Services are stateless
+- [MUST] DB access only through repository/DAO layer
+- [AVOID] Circular service dependencies
+
+### Logging (BE-02)
+- [MUST] Structured JSON logs: `{ level, timestamp, service, trace_id, message }`
+- [MUST] NEVER log PII, credentials, or payment data
+- [AVOID] Empty catch blocks (exception swallowing)
+
+### Config (BE-03)
+- [MUST] All config via environment variables
+- [MUST] Secrets in secret manager (AWS SM / Vault) — NEVER in code
+- [MUST] Validate all config at startup — fail fast
+- [AVOID] Committing .env files to version control
+
+### Testing (BE-04)
+- [MUST] 80% unit test coverage for service layer
+- [MUST] Integration tests for all API endpoints
+- [MUST] Tests must be deterministic — no flaky tests
+
+---
+
+## ARCHITECTURE RULES
+
+### Boundaries (ARCH-01)
+- [MUST] Services own their data — no cross-service DB access
+- [MUST] Cross-service communication via APIs or message queues
+- [AVOID] Shared databases between independent services
+
+### Resilience (ARCH-02)
+- [MUST] Circuit breakers on all external service calls
+- [MUST] Idempotent message consumers
+- [AVOID] Synchronous chains longer than 3 services
+
+### Security (ARCH-03)
+- [MUST] Zero-trust — all internal traffic authenticated
+- [MUST] mTLS for service-to-service in production
+
+### Observability (ARCH-04)
+- [MUST] OpenTelemetry distributed tracing on all services
+- [MUST] Alerts on error rate, P99 latency, saturation
+- [AVOID] Manual dashboard creation — all observability as code
+
+---
+
+## HOW TO APPLY THESE RULES
+
+When generating code:
+1. Apply all [MUST] rules without exception or asking
+2. Apply [SHOULD] rules by default; comment if deviating
+3. Never produce patterns marked [AVOID]
+4. Use rule IDs in comments when enforcing: `// API-02-01`
+5. When reviewing code, flag violations with rule IDs
+
+Detailed standards: `.ai/standards/` directory
